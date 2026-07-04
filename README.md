@@ -42,6 +42,19 @@ These are real outputs from the deployed app and are the best examples to includ
 
 ---
 
+## Discord Bonus
+
+The Discord integration is live and automatically posts the generated PDF plus applicant details after a successful report.
+
+Test server invite:
+[https://discord.gg/wskCs3JQk](https://discord.gg/wskCs3JQk)
+
+Proof of the bot posting reports:
+
+![Discord integration proof](docs/screenshots/discord-proof.png)
+
+---
+
 ## Tech Stack
 
 | Layer | Choice |
