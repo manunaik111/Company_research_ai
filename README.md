@@ -30,6 +30,18 @@ Live demo: https://company-research-ai-2101.onrender.com/
 
 ---
 
+## Screenshots
+
+These are real outputs from the deployed app and are the best examples to include in the submission:
+
+![Stripe research report](docs/screenshots/stripe-result.png)
+
+![Google research report](docs/screenshots/google-result.png)
+
+![X research report](docs/screenshots/x-result.png)
+
+---
+
 ## Tech Stack
 
 | Layer | Choice |
