@@ -215,7 +215,7 @@ def _normalize_candidate_url(url: str | None) -> Optional[str]:
     clean_path = parsed.path or "/"
     if clean_path != "/":
         clean_path = clean_path.rstrip("/")
-    return f"{parsed.scheme}://{parsed.netloc}{clean_path}"
+    return f"https://{parsed.netloc}{clean_path}"
 
 
 def _company_tokens(company_name: str) -> list[str]:

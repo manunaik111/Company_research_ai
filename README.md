@@ -6,6 +6,8 @@ generate a downloadable PDF report — all through a ChatGPT-style interface.
 
 Built for the Relu Consultancy AI & Automation Developer hackathon.
 
+Live demo: https://company-research-ai-2101.onrender.com/
+
 ---
 
 ## Features
@@ -17,8 +19,9 @@ Built for the Relu Consultancy AI & Automation Developer hackathon.
 - Enriches research with additional Serper.dev searches (competitors, contact info,
   Google Knowledge Graph data)
 - Sends assembled context to **OpenRouter** for AI analysis: summary, products/services,
-  pain points, and competitor suggestions — model is selectable in the UI
-- Identifies competitors (name + website)
+  pain points, competitor suggestions, and a richer company profile — model is selectable in the UI
+- Identifies competitors with a short rationale for why each one is relevant
+- Shows source references used in the research, with weak sources filtered out
 - Generates a professional, downloadable **PDF report**
 - Clean, responsive, ChatGPT-style chat interface
 - **Bonus:** Discord settings section — save a bot token + channel ID in the UI, then
@@ -159,6 +162,7 @@ This repo includes a `render.yaml` blueprint.
   rendered single-page-application sites may return limited content. This keeps
   crawling fast and dependency-light, which matters given the time constraints of
   the assignment; documented here rather than silently glossed over.
+- The app filters out low-trust sources and weak competitor suggestions, but unusually branded products or sparse company sites can still produce less detailed output than ideal.
 - No persistent storage/database, per the assignment's requirements — every
   research run is stateless and in-memory only.
 - Discord settings saved through the UI are also in-memory only, so they reset when the app restarts.

@@ -6,6 +6,7 @@ Orchestrates the end-to-end company research workflow.
 
 import asyncio
 import re
+from urllib.parse import urlparse
 
 import httpx
 from fastapi import APIRouter
@@ -24,6 +25,50 @@ from app.services.serper import SerperClient
 router = APIRouter()
 
 URL_PATTERN = re.compile(r"^https?://", re.IGNORECASE)
+LOW_TRUST_SOURCE_DOMAINS = {
+    "pissedconsumer.com",
+    "youtube.com",
+    "youtu.be",
+    "reddit.com",
+    "quora.com",
+    "medium.com",
+    "substack.com",
+    "linkedin.com",
+    "facebook.com",
+    "instagram.com",
+    "tiktok.com",
+    "x.com",
+    "twitter.com",
+    "cbinsights.com",
+    "practicalecommerce.com",
+    "19pine.ai",
+}
+LOW_TRUST_SOURCE_HINTS = {
+    "how to contact",
+    "alternatives compared",
+    "competitors",
+    "customer service",
+    "review",
+    "complaint",
+    "works in",
+    "youtube.com",
+    "pissedconsumer",
+}
+WEAK_COMPETITOR_NAMES = {
+    "kin",
+}
+GENERIC_HIGHLIGHT_PHRASES = {
+    "various",
+    "wide range",
+    "innovative",
+    "enhance user experience",
+    "many users",
+    "all sizes",
+    "cutting-edge",
+    "streamline",
+    "improve productivity",
+    "offers features",
+}
 
 
 def _looks_like_url(query: str) -> bool:
@@ -127,19 +172,13 @@ async def research_company(req: ResearchRequest) -> ResearchResponse:
             industry=ai_result.get("industry", ""),
             target_customers=ai_result.get("target_customers", ""),
             business_model=ai_result.get("business_model", ""),
-            key_highlights=_clean_text_list(ai_result.get("key_highlights", [])),
+            key_highlights=_clean_highlights(
+                ai_result.get("key_highlights", []), pages, info_results, knowledge_graph
+            ),
             products_services=_clean_text_list(ai_result.get("products_services", [])),
             pain_points=_clean_text_list(ai_result.get("pain_points", [])),
-            competitors=[
-                Competitor(
-                    name=c.get("name", "Unknown"),
-                    website=c.get("website"),
-                    rationale=(c.get("rationale") or "").strip(),
-                )
-                for c in ai_result.get("competitors", [])
-                if c.get("name")
-            ],
-            sources=sources,
+            competitors=_clean_competitors(ai_result.get("competitors", []), company_name_hint),
+            sources=_clean_sources(sources),
             pages_crawled=list(pages.keys()),
             warnings=warnings,
         )
@@ -231,6 +270,130 @@ def _build_sources(
         )
 
     return sources
+
+
+def _clean_sources(sources: list[SourceReference]) -> list[SourceReference]:
+    cleaned: list[SourceReference] = []
+    seen: set[str] = set()
+    for source in sources:
+        normalized = _normalize_source_url(source.url)
+        if not normalized or normalized in seen:
+            continue
+        if _is_low_trust_source(normalized, source.label, source.notes):
+            continue
+        seen.add(normalized)
+        cleaned.append(
+            SourceReference(
+                label=source.label,
+                url=normalized,
+                source_type=source.source_type,
+                notes=source.notes,
+            )
+        )
+    return cleaned
+
+
+def _clean_highlights(
+    highlights: list | None,
+    pages: dict[str, dict],
+    info_results: list[dict],
+    knowledge_graph: dict | None,
+) -> list[str]:
+    raw_items = _clean_text_list(highlights)
+    cleaned: list[str] = []
+
+    for item in raw_items:
+        lower = item.lower()
+        if len(item) < 18:
+            continue
+        if any(phrase in lower for phrase in GENERIC_HIGHLIGHT_PHRASES):
+            continue
+        if not any(ch.isdigit() for ch in item) and len(item.split()) < 5:
+            continue
+        cleaned.append(item)
+
+    if cleaned:
+        return cleaned[:4]
+
+    fallback: list[str] = []
+    for page_url, page_info in list(pages.items())[:3]:
+        page_type = page_info.get("type", "website").replace("_", " ")
+        text = page_info.get("text", "")
+        fallback.append(f"Crawled {page_type} page: {text[:120].rstrip()}")
+    if knowledge_graph:
+        if knowledge_graph.get("description"):
+            fallback.append(str(knowledge_graph["description"]))
+    for result in info_results[:2]:
+        snippet = (result.get("snippet") or "").strip()
+        if snippet:
+            fallback.append(snippet)
+
+    return _compact_unique(fallback)[:4]
+
+
+def _clean_competitors(competitors: list | None, company_name_hint: str) -> list[Competitor]:
+    cleaned: list[Competitor] = []
+    seen: set[str] = set()
+    company_tokens = set(_tokenize(company_name_hint))
+
+    for competitor in competitors or []:
+        name = str(competitor.get("name", "")).strip()
+        website = _normalize_source_url(competitor.get("website"))
+        rationale = str(competitor.get("rationale", "")).strip()
+        if not name or len(name) < 3:
+            continue
+        if name.lower() in WEAK_COMPETITOR_NAMES:
+            continue
+        if any(token in name.lower() for token in company_tokens):
+            continue
+        if website:
+            domain = urlparse(website).netloc.lower().replace("www.", "")
+            if domain in seen:
+                continue
+            seen.add(domain)
+        if website and _is_low_trust_source(website, name, rationale):
+            continue
+        if not rationale:
+            rationale = "Relevant competitor in the same market or product category."
+        cleaned.append(Competitor(name=name, website=website, rationale=rationale))
+
+    return cleaned[:5]
+
+
+def _is_low_trust_source(url: str, label: str, notes: str) -> bool:
+    parsed = urlparse(url)
+    hostname = parsed.netloc.lower().replace("www.", "")
+    haystack = f"{label} {notes} {parsed.path}".lower()
+    if any(hostname == domain or hostname.endswith(f".{domain}") for domain in LOW_TRUST_SOURCE_DOMAINS):
+        return True
+    if any(hint in haystack for hint in LOW_TRUST_SOURCE_HINTS):
+        return True
+    return False
+
+
+def _normalize_source_url(url: str | None) -> str | None:
+    if not url:
+        return None
+    parsed = urlparse(url.strip())
+    if parsed.scheme not in {"http", "https"} or not parsed.netloc:
+        return None
+    clean_path = parsed.path or "/"
+    if clean_path != "/":
+        clean_path = clean_path.rstrip("/")
+    return f"https://{parsed.netloc}{clean_path}"
+
+
+def _tokenize(text: str) -> list[str]:
+    return [token for token in re.sub(r"[^a-z0-9\s]", " ", text.lower()).split() if token]
+
+
+def _compact_unique(items: list[str]) -> list[str]:
+    out: list[str] = []
+    for item in items:
+        text = item.strip()
+        if text and text not in out:
+            out.append(text)
+    return out[:4]
 
 
 def _clean_text_list(items: list | None) -> list[str]:

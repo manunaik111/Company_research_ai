@@ -85,7 +85,17 @@ pain points from competitive position, product scope, and market context —
 aiming for the kind of insight that demonstrates actual reasoning over the
 crawled/searched content, not filler.
 
-## 7. Why every external call has its own try/except, returning a soft error
+## 7. Why the app filters low-trust sources and weak competitor suggestions
+
+The raw search API can surface helpful material, but it also returns plenty of
+low-signal pages such as complaint sites, YouTube explainers, listicles, and
+generic competitor roundups. The research pipeline now post-processes sources
+and competitor suggestions so the final report stays closer to the company's
+own website and higher-trust public references. That tradeoff makes the output
+more defensible in a hiring review, even if it occasionally drops a plausible
+but lower-confidence source.
+
+## 8. Why every external call has its own try/except, returning a soft error
 
 Serper, the crawler, and OpenRouter are three independent points of failure
 outside this app's control (rate limits, site blocking bots, model timeouts).
@@ -96,7 +106,7 @@ the "Handling of edge cases and robustness" evaluation criterion — the app
 degrading gracefully with a clear message is a deliberate design goal, not
 an afterthought.
 
-## 8. Why Discord uses direct REST calls instead of a bot library
+## 9. Why Discord uses direct REST calls instead of a bot library
 
 `discord.py` (or similar) requires a persistent websocket "gateway"
 connection to function as a running bot — appropriate for a bot that listens
@@ -108,7 +118,7 @@ management, and keeps the app single-process/stateless — consistent with
 the "no persistent server processes beyond the web service" spirit of a
 serverless-friendly deploy.
 
-## 9. Why API keys are environment-variables-only (no key entry in the UI)
+## 10. Why API keys are environment-variables-only (no key entry in the UI)
 
 Although the spec's sample screenshots show key-entry fields in a Settings
 panel, storing real secrets in browser state (even client-side-only) adds
@@ -123,7 +133,7 @@ production) means:
 This was an explicit instruction from the project owner and is treated as
 the correct choice for a real deployment, not just a shortcut.
 
-## 10. Why PDF generation is a separate endpoint from research
+## 11. Why PDF generation is a separate endpoint from research
 
 `/api/research` (slow: search + crawl + AI call) and `/api/pdf` (fast: pure
 rendering from already-known data) are split so that downloading a PDF, or
@@ -132,7 +142,7 @@ unnecessary Serper/OpenRouter usage (both often rate-limited or metered) and
 keeps the PDF button responsive regardless of how slow the original research
 call was.
 
-## 11. Why Render over Vercel/Netlify for this specific app
+## 12. Why Render over Vercel/Netlify for this specific app
 
 Vercel/Netlify's serverless functions are optimized for short-lived requests
 (often 10–15s default limits on free tiers) and don't suit Python well
