@@ -1,10 +1,8 @@
 """
 Shared data models for the Company Research Assistant.
 
-These models define the "contract" between the crawler, the AI layer,
-the PDF generator, and the frontend — every piece of the app speaks
-in terms of these shapes, so changing one service doesn't ripple
-silently into another.
+These models define the contract between the crawler, the AI layer,
+the PDF generator, and the frontend.
 """
 
 from typing import Optional
@@ -13,6 +11,7 @@ from pydantic import BaseModel, Field
 
 class ResearchRequest(BaseModel):
     """Incoming request from the chat UI."""
+
     query: str = Field(..., description="Company name OR website URL")
     model: Optional[str] = Field(
         default=None,
@@ -23,21 +22,34 @@ class ResearchRequest(BaseModel):
 class Competitor(BaseModel):
     name: str
     website: Optional[str] = None
+    rationale: str = ""
+
+
+class SourceReference(BaseModel):
+    label: str
+    url: str
+    source_type: str
+    notes: str = ""
 
 
 class CompanyData(BaseModel):
-    """Fully assembled research result — used for the chat response,
-    the PDF report, and the Discord payload."""
+    """Fully assembled research result used by the UI, PDF, and Discord."""
+
     company_name: str
     website: str
     phone: Optional[str] = "Not publicly listed"
     address: Optional[str] = "Not publicly listed"
     summary: str = ""
+    industry: str = ""
+    target_customers: str = ""
+    business_model: str = ""
+    key_highlights: list[str] = Field(default_factory=list)
     products_services: list[str] = Field(default_factory=list)
     pain_points: list[str] = Field(default_factory=list)
     competitors: list[Competitor] = Field(default_factory=list)
+    sources: list[SourceReference] = Field(default_factory=list)
 
-    # Diagnostics shown in UI / useful for debugging, not required by spec
+    # Diagnostics shown in UI / useful for debugging.
     pages_crawled: list[str] = Field(default_factory=list)
     warnings: list[str] = Field(default_factory=list)
 
@@ -49,8 +61,8 @@ class ResearchResponse(BaseModel):
 
 
 class PdfRequest(BaseModel):
-    """PDF generation takes the already-assembled CompanyData —
-    no need to re-crawl or re-call the AI."""
+    """PDF generation takes already-assembled CompanyData."""
+
     data: CompanyData
 
 

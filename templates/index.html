@@ -10,8 +10,6 @@
 
 <body>
     <div class="app-shell">
-
-        <!-- Sidebar: applicant details for Discord bonus + info -->
         <aside class="sidebar">
             <div class="brand">
                 <div class="brand-dot"></div>
@@ -29,8 +27,7 @@
                 <input id="applicant-name" type="text" placeholder="Your full name" />
                 <label class="field-label" for="applicant-email">Email Address</label>
                 <input id="applicant-email" type="email" placeholder="you@example.com" />
-                <p class="hint-text">After each successful report, the app will auto-send to Discord when settings are
-                    configured.</p>
+                <p class="hint-text">After each successful report, the app will auto-send to Discord when settings are configured.</p>
             </div>
 
             <div class="sidebar-section">
@@ -58,22 +55,20 @@
                     <button id="discord-save-btn" class="sidebar-btn" type="button">Save Configuration</button>
                 </div>
                 <div id="discord-config-status" class="settings-status">Checking Discord configuration...</div>
-                <p class="hint-text">Saved in memory for the current app session only. You can also leave these blank
-                    and use server environment variables.</p>
+                <p class="hint-text">Saved in memory for the current app session only. You can also leave these blank and use server environment variables.</p>
             </div>
 
             <div class="sidebar-section how-it-works">
                 <div class="sidebar-label">How it works</div>
                 <ol>
                     <li>Enter a company name or URL</li>
-                    <li>Serper.dev searches &amp; crawls it</li>
+                    <li>Serper.dev searches and crawls it</li>
                     <li>OpenRouter AI generates insights</li>
                     <li>Download a professional PDF report</li>
                 </ol>
             </div>
         </aside>
 
-        <!-- Main chat column -->
         <main class="chat-main">
             <header class="chat-header">
                 <span>Company Research</span>
@@ -84,8 +79,7 @@
                 <div class="empty-state" id="empty-state">
                     <div class="empty-kicker">AI-POWERED INTELLIGENCE</div>
                     <h1>Know any company<br />in minutes.</h1>
-                    <p>Enter a company name or website URL to get AI-powered insights,
-                        competitor analysis, pain points, and a professional PDF report.</p>
+                    <p>Enter a company name or website URL to get AI-powered insights, competitor analysis, pain points, and a professional PDF report.</p>
                     <div class="example-chips">
                         <button class="chip" data-example="stripe.com">stripe.com</button>
                         <button class="chip" data-example="Tesla">Tesla</button>
@@ -129,6 +123,29 @@
             <div class="result-summary"></div>
 
             <div class="result-section">
+                <div class="result-label">Company Profile</div>
+                <div class="detail-grid">
+                    <div class="detail-item">
+                        <div class="result-label">Industry</div>
+                        <div class="result-industry"></div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="result-label">Target Customers</div>
+                        <div class="result-target-customers"></div>
+                    </div>
+                    <div class="detail-item detail-item-wide">
+                        <div class="result-label">Business Model</div>
+                        <div class="result-business-model"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="result-section">
+                <div class="result-label">Key Highlights</div>
+                <ul class="result-highlights"></ul>
+            </div>
+
+            <div class="result-section">
                 <div class="result-label">Products &amp; Services</div>
                 <div class="chip-list result-products"></div>
             </div>
@@ -141,6 +158,11 @@
             <div class="result-section">
                 <div class="result-label">Competitors</div>
                 <div class="competitor-grid result-competitors"></div>
+            </div>
+
+            <div class="result-section">
+                <div class="result-label">Sources Used</div>
+                <div class="source-list result-sources"></div>
             </div>
 
             <div class="result-warnings"></div>

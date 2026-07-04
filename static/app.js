@@ -127,6 +127,19 @@ function renderResultCard(data) {
     card.querySelector(".result-phone").textContent = data.phone || "Not publicly listed";
     card.querySelector(".result-address").textContent = data.address || "Not publicly listed";
     card.querySelector(".result-summary").textContent = data.summary || "";
+    card.querySelector(".result-industry").textContent = data.industry || "Not clearly identified";
+    card.querySelector(".result-target-customers").textContent = data.target_customers || "Not clearly identified";
+    card.querySelector(".result-business-model").textContent = data.business_model || "Not clearly identified";
+
+    const highlightsEl = card.querySelector(".result-highlights");
+    (data.key_highlights || []).forEach((item) => {
+        const li = document.createElement("li");
+        li.textContent = item;
+        highlightsEl.appendChild(li);
+    });
+    if (!data.key_highlights || data.key_highlights.length === 0) {
+        highlightsEl.innerHTML = "<li>No additional highlights extracted.</li>";
+    }
 
     const productsEl = card.querySelector(".result-products");
     (data.products_services || []).forEach((p) => {
@@ -135,7 +148,7 @@ function renderResultCard(data) {
         productsEl.appendChild(span);
     });
     if (!data.products_services || data.products_services.length === 0) {
-        productsEl.innerHTML = '<span>No details found</span>';
+        productsEl.innerHTML = "<span>No details found</span>";
     }
 
     const painEl = card.querySelector(".result-pain-points");
@@ -144,15 +157,20 @@ function renderResultCard(data) {
         li.textContent = p;
         painEl.appendChild(li);
     });
+    if (!data.pain_points || data.pain_points.length === 0) {
+        painEl.innerHTML = "<li>No pain points could be inferred.</li>";
+    }
 
     const compEl = card.querySelector(".result-competitors");
     (data.competitors || []).forEach((c) => {
         const div = document.createElement("div");
         div.className = "competitor-item";
+
         const nameDiv = document.createElement("div");
         nameDiv.className = "name";
         nameDiv.textContent = c.name;
         div.appendChild(nameDiv);
+
         if (c.website) {
             const a = document.createElement("a");
             a.href = c.website;
@@ -161,15 +179,36 @@ function renderResultCard(data) {
             a.textContent = c.website;
             div.appendChild(a);
         }
+
+        const rationaleDiv = document.createElement("div");
+        rationaleDiv.className = "competitor-rationale";
+        rationaleDiv.textContent = c.rationale || "Similar market or offering.";
+        div.appendChild(rationaleDiv);
+
         compEl.appendChild(div);
     });
     if (!data.competitors || data.competitors.length === 0) {
         compEl.innerHTML = '<span class="hint-text">No competitors identified.</span>';
     }
 
+    const sourcesEl = card.querySelector(".result-sources");
+    (data.sources || []).forEach((source) => {
+        const sourceItem = document.createElement("a");
+        sourceItem.className = "source-item";
+        sourceItem.href = source.url;
+        sourceItem.target = "_blank";
+        sourceItem.rel = "noopener";
+        const notes = source.notes ? ` - ${source.notes}` : "";
+        sourceItem.textContent = `${source.label}${notes}`;
+        sourcesEl.appendChild(sourceItem);
+    });
+    if (!data.sources || data.sources.length === 0) {
+        sourcesEl.innerHTML = '<span class="hint-text">No source references recorded.</span>';
+    }
+
     const warningsEl = card.querySelector(".result-warnings");
     if (data.warnings && data.warnings.length > 0) {
-        warningsEl.textContent = "Note: " + data.warnings.join(" · ");
+        warningsEl.textContent = "Note: " + data.warnings.join(" | ");
     }
 
     card.querySelector(".btn-download").addEventListener("click", () => downloadPdf(data));
