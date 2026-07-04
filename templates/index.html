@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Company Research AI · Relu Consultancy</title>
+    <link rel="stylesheet" href="/static/style.css" />
+</head>
+
+<body>
+    <div class="app-shell">
+
+        <!-- Sidebar: applicant details for Discord bonus + info -->
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="brand-dot"></div>
+                <div>
+                    <div class="brand-name">Research AI</div>
+                    <div class="brand-sub">Company Intelligence</div>
+                </div>
+            </div>
+
+            <button id="new-research-btn" class="new-research-btn">+ New Research</button>
+
+            <div class="sidebar-section">
+                <div class="sidebar-label">Applicant Details</div>
+                <label class="field-label" for="applicant-name">Full Name</label>
+                <input id="applicant-name" type="text" placeholder="Your full name" />
+                <label class="field-label" for="applicant-email">Email Address</label>
+                <input id="applicant-email" type="email" placeholder="you@example.com" />
+                <p class="hint-text">After each successful report, the app will auto-send to Discord when settings are
+                    configured.</p>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-label">AI Model</div>
+                <label class="field-label" for="model-input">OpenRouter Model</label>
+                <input id="model-input" type="text" list="model-suggestions"
+                    placeholder="openai/gpt-4o-mini (blank = server default)" />
+                <datalist id="model-suggestions">
+                    <option value="openai/gpt-4o-mini"></option>
+                    <option value="openai/gpt-4.1-mini"></option>
+                    <option value="anthropic/claude-3.5-sonnet"></option>
+                    <option value="google/gemini-2.0-flash-001"></option>
+                    <option value="meta-llama/llama-3.3-70b-instruct"></option>
+                </datalist>
+                <p class="hint-text">You can type any OpenRouter-supported model id here.</p>
+            </div>
+
+            <div class="sidebar-section">
+                <div class="sidebar-label">Discord Settings</div>
+                <label class="field-label" for="discord-bot-token">Discord Bot Token</label>
+                <input id="discord-bot-token" type="password" placeholder="Paste evaluator bot token" />
+                <label class="field-label" for="discord-channel-id">Discord Channel ID</label>
+                <input id="discord-channel-id" type="text" placeholder="Paste target channel ID" />
+                <div class="sidebar-actions">
+                    <button id="discord-save-btn" class="sidebar-btn" type="button">Save Configuration</button>
+                </div>
+                <div id="discord-config-status" class="settings-status">Checking Discord configuration...</div>
+                <p class="hint-text">Saved in memory for the current app session only. You can also leave these blank
+                    and use server environment variables.</p>
+            </div>
+
+            <div class="sidebar-section how-it-works">
+                <div class="sidebar-label">How it works</div>
+                <ol>
+                    <li>Enter a company name or URL</li>
+                    <li>Serper.dev searches &amp; crawls it</li>
+                    <li>OpenRouter AI generates insights</li>
+                    <li>Download a professional PDF report</li>
+                </ol>
+            </div>
+        </aside>
+
+        <!-- Main chat column -->
+        <main class="chat-main">
+            <header class="chat-header">
+                <span>Company Research</span>
+                <span class="status-pill">● Live</span>
+            </header>
+
+            <div id="chat-log" class="chat-log">
+                <div class="empty-state" id="empty-state">
+                    <div class="empty-kicker">AI-POWERED INTELLIGENCE</div>
+                    <h1>Know any company<br />in minutes.</h1>
+                    <p>Enter a company name or website URL to get AI-powered insights,
+                        competitor analysis, pain points, and a professional PDF report.</p>
+                    <div class="example-chips">
+                        <button class="chip" data-example="stripe.com">stripe.com</button>
+                        <button class="chip" data-example="Tesla">Tesla</button>
+                        <button class="chip" data-example="Microsoft">Microsoft</button>
+                        <button class="chip" data-example="openai.com">openai.com</button>
+                    </div>
+                </div>
+            </div>
+
+            <form id="research-form" class="input-bar" autocomplete="off">
+                <input id="query-input" type="text"
+                    placeholder="Enter a company name (e.g. Stripe) or website URL (e.g. https://stripe.com)"
+                    required />
+                <button type="submit" id="submit-btn">Research →</button>
+            </form>
+            <div class="input-footer">Press Enter to research · Optimized for the web</div>
+        </main>
+    </div>
+
+    <template id="result-template">
+        <div class="result-card">
+            <div class="result-header">
+                <div>
+                    <h2 class="result-company-name"></h2>
+                    <a class="result-website" target="_blank" rel="noopener"></a>
+                </div>
+                <span class="result-status">Research Complete</span>
+            </div>
+
+            <div class="result-grid">
+                <div>
+                    <div class="result-label">Phone</div>
+                    <div class="result-phone"></div>
+                </div>
+                <div>
+                    <div class="result-label">Address</div>
+                    <div class="result-address"></div>
+                </div>
+            </div>
+
+            <div class="result-summary"></div>
+
+            <div class="result-section">
+                <div class="result-label">Products &amp; Services</div>
+                <div class="chip-list result-products"></div>
+            </div>
+
+            <div class="result-section">
+                <div class="result-label">AI-Generated Pain Points</div>
+                <ul class="result-pain-points"></ul>
+            </div>
+
+            <div class="result-section">
+                <div class="result-label">Competitors</div>
+                <div class="competitor-grid result-competitors"></div>
+            </div>
+
+            <div class="result-warnings"></div>
+
+            <div class="result-actions">
+                <button class="btn-primary btn-download" type="button">⬇ Download PDF Report</button>
+                <button class="btn-secondary btn-discord" type="button">Send to Discord Again</button>
+            </div>
+            <div class="discord-status"></div>
+        </div>
+    </template>
+
+    <script src="/static/app.js"></script>
+</body>
+
+</html>
