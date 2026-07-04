@@ -12,7 +12,7 @@ Live demo: https://company-research-ai-2101.onrender.com/
 
 ## Features
 
-- Accepts either a **company name** (e.g. `Tesla`) or a **website URL** (e.g. `https://tesla.com`)
+- Accepts either a **company name** (e.g. `Google`) or a **website URL** (e.g. `https://google.com`)
 - Resolves company name → official website using **Serper.dev**
 - Crawls the site (About, Products, Services, Solutions, Contact, Pricing pages),
   deduplicating and filtering out login/irrelevant pages
@@ -92,7 +92,7 @@ company-research-ai/
 
 1. **Clone the repo and enter it:**
    ```bash
-   git clone <your-repo-url>
+   git clone https://github.com/manunaik111/Company_research_ai.git
    cd company-research-ai
    ```
 
