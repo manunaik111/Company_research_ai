@@ -40,6 +40,8 @@ These are real outputs from the deployed app and are the best examples to includ
 
 ![X research report](docs/screenshots/x-result.png)
 
+![PDF report preview](docs/screenshots/pdf-proof.png)
+
 ---
 
 ## Discord Bonus
